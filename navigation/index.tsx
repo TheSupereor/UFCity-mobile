@@ -10,12 +10,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
 import { ColorSchemeName, Pressable } from 'react-native';
 
-import Colors from '../constants/Colors';
+import Colors from '../constants/Theme';
 import useColorScheme from '../hooks/useColorScheme';
+
 import ModalScreen from '../screens/ModalScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
-import TabOneScreen from '../screens/TabOneScreen';
-import TabTwoScreen from '../screens/TabTwoScreen';
+import RuTab from '../screens/RuTab';
+import NewsTab from '../screens/NewsTab';
+import EventTab from '../screens/EventTab';
+import Menu from '../screens/Menu';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
 
@@ -51,46 +54,107 @@ function RootNavigator() {
  * A bottom tab navigator displays tab buttons on the bottom of the display to switch screens.
  * https://reactnavigation.org/docs/bottom-tab-navigator
  */
+
+// talvez fazer com que rotas novas sejam criadas baseadas no menu
 const BottomTab = createBottomTabNavigator<RootTabParamList>();
 
-function BottomTabNavigator() {
+function BottomTabNavigator({navigation}: RootTabScreenProps<'Menu'>) {
   const colorScheme = useColorScheme();
+
+  const backButton = () => {
+    return(
+      <Pressable
+        onPress={() => navigation.goBack()}
+        style={({ pressed }) => ({
+          opacity: pressed ? 0.5 : 1,
+        })}>
+        <FontAwesome
+          name="arrow-left"
+          size={25}
+          color={Colors[colorScheme].blue}
+          style={{ 
+            marginHorizontal: 16
+          }}
+        />
+      </Pressable>
+    )
+  }
+
+  const backToMenuButton = () => {
+    return(
+      <Pressable
+        onPress={() => navigation.navigate('Menu')}
+        style={({ pressed }) => ({
+          opacity: pressed ? 0.5 : 1,
+        })}>
+        <FontAwesome
+          name="home"
+          size={25}
+          color={Colors[colorScheme].blue}
+          style={{ marginRight: 15 }}
+        />
+      </Pressable>
+    )
+  }
 
   return (
     <BottomTab.Navigator
-      initialRouteName="TabOne"
+      initialRouteName="Menu"
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme].tint,
+        tabBarStyle:{
+          display: 'none',
+          alignItems: 'center'
+        },
+        headerShadowVisible: false,
+        headerTitleAlign: 'center',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
       }}>
       <BottomTab.Screen
-        name="TabOne"
-        component={TabOneScreen}
-        options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Pressable
-              onPress={() => navigation.navigate('Modal')}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.5 : 1,
-              })}>
-              <FontAwesome
-                name="info-circle"
-                size={25}
-                color={Colors[colorScheme].text}
-                style={{ marginRight: 15 }}
-              />
-            </Pressable>
-          ),
+        name="Menu"
+        component={ Menu }
+        options={({ navigation }: RootTabScreenProps<'Menu'>) => ({
+          title: 'Meu Campus UFC',
+          headerStyle: {
+            backgroundColor: Colors[colorScheme].white
+          },
+          headerTitleStyle:{
+            color: Colors[colorScheme].blue,
+            fontWeight: 'bold',
+          }
         })}
       />
       <BottomTab.Screen
-        name="TabTwo"
-        component={TabTwoScreen}
-        options={{
-          title: 'Tab Two',
+        name="RuTab"
+        component={ RuTab }
+        options={({ navigation }: RootTabScreenProps<'RuTab'>) => ({
+          title: 'Restaurante',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-        }}
+          headerLeft: backButton,
+          //headerRight: backToMenuButton,
+        })}
+      />
+      <BottomTab.Screen
+        name="NewsTab"
+        component={NewsTab}
+        options={({ navigation }: RootTabScreenProps<'NewsTab'>) => ({
+          title: 'Notícias',
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          headerLeft: backButton,
+          //headerRight: backToMenuButton,
+        })}
+      />
+      <BottomTab.Screen
+        name="EventTab"
+        component={EventTab}
+        options={({ navigation }: RootTabScreenProps<'EventTab'>) => ({
+          title: 'Eventos',
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          headerLeft: backButton,
+          //headerRight: backToMenuButton,
+        })}
       />
     </BottomTab.Navigator>
   );
