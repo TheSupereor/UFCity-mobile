@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, Image, ImageSourcePropType, ListRenderItem, Pressable, StyleSheet, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, ListRenderItem, Pressable, StyleSheet, View } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { event } from '../../Interfaces/interfaces';
 
+import Events from '../../mock/Events';
+
 import Colors from '../../constants/Colors';
 import { MonoText } from '../StyledText';
-import { View } from '../Themed';
+//import { View } from '../Themed';
 import { HeaderItem } from './HeaderItem';
+import CustomImage from '../CustomImage';
 
 // const URL_TO_FETCH = `${process.env.BASE_URL}/ru_ufc/byDay?day=2022-05-13`;
 const { width } = Dimensions.get("window");
@@ -15,44 +18,21 @@ export default function MiniEvents({navigation} : any) {
   const [eventsJson, setEventsJson] = useState<event[]>();
   const [error, setError] = useState('');
         
-  const getNewsInfo = async () => {
-    const response = await fetch(`https://ufcity.herokuapp.com/events`);
+  const getEventsInfo = async () => {
+    const response = await fetch(`https://ufcity.herokuapp.com/news/highlightsNews`);
+    setEventsJson(Events);
     // tratando erro
     if (!response.ok) {
       const message = `Um erro aconteceu: ${response.status}`;
-      setError(message);
+      //setError(message);
       throw new Error(message);
     } 
-    setEventsJson(await response.json());
+    //setEventsJson(await response.json());
   }
   
   useEffect( () => {
-    getNewsInfo();
+    getEventsInfo();
   }, [])
-
-  // const events = [
-  //   {
-  //     text: 'Texto Notificatio',
-  //     link: 'http://www.google.com',
-  //     date: '01/02/02',
-  //     price: 'Grátis',
-  //     image: require('mobile/assets/images/newspaper.png')
-  //   },
-  //   {
-  //     text: 'Texto Notificatio',
-  //     link: 'http://www.youtube.com',
-  //     date: '01/02/02',
-  //     price: 'Grátis',
-  //     image: require('mobile/assets/images/newspaper.png')
-  //   },
-  //   {
-  //     text: 'Texto Notificatio',
-  //     link: 'http://www.twitter.com',
-  //     date: '01/02/02',
-  //     price: 'Grátis',
-  //     image: require('mobile/assets/images/newspaper.png')
-  //   },
-  // ];
 
   // abrir um browser
   const openLocalBrowser = async (link: string) => {
@@ -64,10 +44,17 @@ export default function MiniEvents({navigation} : any) {
   const eventConstructor:ListRenderItem<event> = event => {
     return(
       <Pressable style={styles.Content} onPress={() => openLocalBrowser(event.item.link as string)}>
-        <Image
+        {/* <Image
           style={styles.NewsImage}
-          source={event.item.image as ImageSourcePropType}
-        />
+          source={require('mobile/assets/images/Event.png') as ImageSourcePropType}
+        /> */}
+        <View style={styles.NewsImage}>
+          <CustomImage 
+            URL={(event.item.image) || 'mobile/assets/images/newspaper.png'}
+            width={width}
+            height={300}
+          />
+        </View>
         <MonoText style={styles.newsTitle}>{event.item.text}</MonoText>
         <View style={{
           display: 'flex',
@@ -100,7 +87,7 @@ export default function MiniEvents({navigation} : any) {
               snapToInterval={width}
             />
           </View>
-        ) : !error ? (
+        ): !error ? (
           <>
             <ActivityIndicator style={{ marginTop: 16 }} size="large" color="#294AA3" />
             <MonoText>Carregando os eventos</MonoText>
@@ -127,10 +114,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   NewsImage: {
-    borderRadius: 8,
-    width: '100%',
-    paddingVertical: 12,
-    height: 300
+    width: '90%',
+    backgroundColor: '#456445dd'
   },
   newsTitle: {
     marginVertical: 16,
@@ -146,9 +131,9 @@ const styles = StyleSheet.create({
     paddingBottom: 16
   },
   ListContainer: {
-    
+    flexGrow: 0,
   },
   ListItem: {
-    
+    maxWidth: '100%'
   }
 });

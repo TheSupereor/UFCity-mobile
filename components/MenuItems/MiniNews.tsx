@@ -1,56 +1,41 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, Image, ImageSourcePropType, ListRenderItem, Pressable, StyleSheet, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, ListRenderItem, Pressable, StyleSheet, View } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
-import { highLightNews, news } from '../../Interfaces/interfaces';
+import { highLightNews, highLightNewsResponse, highLightNewsResponseLatestNews, news } from '../../Interfaces/interfaces';
+
+import LatestNews from '../../mock/LatestNews';
 
 import Colors from '../../constants/Colors';
 import { MonoText } from '../StyledText';
-import { View } from '../Themed';
+//import { View } from '../Themed';
 import { HeaderItem } from './HeaderItem';
+import CustomImage from '../CustomImage';
 
 // const URL_TO_FETCH = `${process.env.BASE_URL}/ru_ufc/byDay?day=2022-05-13`;
 const { width } = Dimensions.get("window");
 
 export default function MiniNews({navigation} : any) {
-  const [newsJson, setNewsJson] = useState<highLightNews[]>();
+  const [newsJson, setNewsJson] = useState<highLightNewsResponseLatestNews[]>();
   const [error, setError] = useState('');
         
   const getNewsInfo = async () => {
-    const response = await fetch(`https://ufcity.herokuapp.com/news`);
+    const response = await fetch(`https://ufcity.herokuapp.com/news/highlightsNews`);
     // tratando erro
     if (!response.ok) {
       const message = `Um erro aconteceu: ${response.status}`;
-      setError(message);
+      //setError(message);
+      setNewsJson(LatestNews);
       throw new Error(message);
     } 
-    setNewsJson(await response.json());
-    console.log(await response.json());
+    const APIResponse = await response.json() as highLightNewsResponse;
+
+    const news = APIResponse.latestNews.slice(0, 3);
+    setNewsJson(news);
   }
   
   useEffect( () => {
     getNewsInfo();
   }, [])
-
-  // const news = [
-  //   {
-  //     text: 'Texto Notificatio',
-  //     link: 'http://www.google.com',
-  //     date: '01/02/02',
-  //     image: require('mobile/assets/images/newspaper.png')
-  //   },
-  //   {
-  //     text: 'Texto Notificatio',
-  //     link: 'http://www.youtube.com',
-  //     date: '01/02/02',
-  //     image: require('mobile/assets/images/newspaper.png')
-  //   },
-  //   {
-  //     text: 'Texto Notificatio',
-  //     link: 'http://www.twitter.com',
-  //     date: '01/02/02',
-  //     image: require('mobile/assets/images/newspaper.png')
-  //   },
-  // ];
 
   // abrir um browser
   const openLocalBrowser = async (link: string) => {
@@ -59,19 +44,24 @@ export default function MiniNews({navigation} : any) {
   };
 
   // construir noticia
-  const newsConstructor:ListRenderItem<highLightNews> = highLightNew => {
+  const newsConstructor:ListRenderItem<highLightNewsResponseLatestNews> = news => {
     return(
-      <Pressable style={styles.Content} onPress={() => openLocalBrowser(highLightNew.item.link as string)}>
-        <Image
-          style={styles.NewsImage}
-          source={highLightNew.item.image as ImageSourcePropType}
+      <Pressable style={styles.Content} onPress={() => openLocalBrowser(news.item.title.url as string)}>
+        {/* <Image
+          source={require(news.item.img)}
+          style={{width: width, height: 300}}
+        /> */}
+        <CustomImage 
+          URL={(news.item.img) || 'mobile/assets/images/newspaper.png'}
+          width={ width }
+          height={ 300 }
         />
         <View style={{
           display: 'flex',
           width: width
         }}>
-          <MonoText style={styles.newsTitle}>{highLightNew.item.text}</MonoText>
-          <MonoText style={styles.newsDate}>{highLightNew.item.date}</MonoText> 
+          <MonoText style={styles.newsTitle}>{news.item.title.description}</MonoText>
+          {/* <MonoText style={styles.newsDate}>{news.item.description}</MonoText>  */}
         </View>
       </Pressable>
     )
@@ -86,7 +76,7 @@ export default function MiniNews({navigation} : any) {
           <View style={{ paddingTop: 12 }}>
             <FlatList 
               data={newsJson}
-              keyExtractor={ (item:news) => item.link.toString() }
+              keyExtractor={ (item, index) => index.toString() }
               renderItem={newsConstructor}
               style={styles.ListItem}
               horizontal
@@ -122,24 +112,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   NewsImage: {
-    width: '100%',
     height: 300,
+    width: '90%',
     borderRadius: 8,
     paddingVertical: 12,
   },
   newsTitle: {
     marginVertical: 16,
     fontSize: 20,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    width: '90%'
   },
   newsDate: {
     fontSize: 14,
     color: '#d4d4d4',
     textTransform: 'capitalize',
-    paddingBottom: 16
+    width: '90%'
   },
   ListContainer: {
-    
+    flexGrow: 0
   },
   ListItem: {
     

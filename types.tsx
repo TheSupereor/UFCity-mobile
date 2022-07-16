@@ -23,6 +23,7 @@ export type RootStackParamList = {
   RuTab: undefined;
   NewsTab: undefined;
   EventTab: undefined;
+  InsertCredits: undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<

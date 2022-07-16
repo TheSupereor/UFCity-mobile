@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Pressable, ScrollView, StyleSheet, TouchableOpacity, FlatList, ListRenderItem, ActivityIndicator } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, TouchableOpacity, FlatList, ListRenderItem, ActivityIndicator, Share, View, Text } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
-import { news } from '../Interfaces/interfaces';
+import { highLightNewsResponse, highLightNewsResponseLatestNews, news } from '../Interfaces/interfaces';
 
 import EditScreenInfo from '../components/EditScreenInfo';
-import { Text, View } from '../components/Themed';
+//import { Text } from '../components/Themed';
 import { TextInput } from '../components/InputText';
 import { RootTabScreenProps } from '../types';
 import FontAwesome from '@expo/vector-icons/build/FontAwesome';
 import { MonoText } from '../components/StyledText';
+import WebBrowserOpener from '../Helpers/WebBrowserOpener';
+import NewsData from '../mock/NewsData';
 
 const URL_TO_FETCH = `https://ufcity.herokuapp.com/news`;
 
@@ -18,8 +20,9 @@ interface suggestion {
 }
 
 export default function NewsTab({ navigation }: RootTabScreenProps<'NewsTab'>) {
-  const [news, setNews] = useState<news[]>();
-  const [filteredNews, setFilteredNews] = useState<news[]>();
+  const [defaults, setDefault] = useState<news[]>();
+  const [news, setNews] = useState<news[]>([]);
+  const [filteredNews, setFilteredNews] = useState<news[]>([]);
   const [searchText, setSearchText] = useState('');
   const [error, setError] = useState('');
 
@@ -29,30 +32,59 @@ export default function NewsTab({ navigation }: RootTabScreenProps<'NewsTab'>) {
 
   // pegar as noticias
   const getNewsInfo = async () => {
-    const response = await fetch(URL_TO_FETCH);
+    setNews([]);
+    const response = await fetch(`${URL_TO_FETCH}?pageNumber=0`);
     // tratando erro
     if (!response.ok) {
       const message = `Um erro aconteceu: ${response.status}`;
-      setError(message);
+      setNews(NewsData);
+      //setError(message);
       throw new Error(message);
     } 
-    setNews(await response.json());
-    setFilteredNews(await response.json());
+    const APIResponse = await response.json() as news[];
+    
+    setNews( APIResponse );
+    setFilteredNews( APIResponse );
+    setError('');
   }
 
-  // abrir um browser
-  const openLocalBrowser = async (link: string) => {
-    let result = await WebBrowser.openBrowserAsync(link);
-    console.log(result)
+  // compartilhar link
+  const ShareLink = async (link: string, title: string) => {
+    try {
+      const result = await Share.share({
+        message: link,
+        url: link,
+        title: title
+      });
+      // if (result.action === Share.sharedAction) {
+      //   if (result.activityType) {
+      //     // Não foi compartilhado
+      //   } else {
+      //     // Compartilhado
+      //   }
+      // } else if (result.action === Share.dismissedAction) {
+      //   // dismissed
+      // }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   // construir noticia
-  const newsConstructor:ListRenderItem<news> = news => {
+  const newsConstructor:ListRenderItem<news> = item => {
     return(
-      <Pressable style={styles.ItemContainer} onPress={() => openLocalBrowser(news.item.link as string)}>
-        <Text style={styles.newsTitle}>{news.item.text}</Text>
-        <View style={{flexDirection: 'row'}}>
-          <Text style={styles.newsDate}>Data</Text>
+      <Pressable style={styles.ItemContainer} onPress={() => WebBrowserOpener(item.item.link as string)}>
+        <Text style={styles.newsTitle}>{item.item.text}</Text>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <Text style={styles.newsDate}>{item.item.date}</Text>
+          <Pressable onPress={() => ShareLink(item.item.link, item.item.text)}>
+            <FontAwesome
+              name="share"
+              size={15}
+              color='#294AA3'
+              style={{ marginRight: 15 }}
+            />
+          </Pressable>
         </View>
       </Pressable>
     )
@@ -67,7 +99,7 @@ export default function NewsTab({ navigation }: RootTabScreenProps<'NewsTab'>) {
   // Filtragem
   useEffect(() => {
     if(searchText === ''){
-      setFilteredNews(news);
+      setFilteredNews([]);
     } 
     // else {
     //   setFilteredNews(
@@ -80,10 +112,13 @@ export default function NewsTab({ navigation }: RootTabScreenProps<'NewsTab'>) {
   }, [searchText]);
 
   const searchNews = async () => {
-    const response = await fetch(`${URL_TO_FETCH}?title="${searchText}"`)
+    setError('');
+    setFilteredNews([]);
+    const response = await fetch(`${URL_TO_FETCH}?title=${searchText}`)
     // tratando erro
     if (!response.ok) {
       const message = `An error has occured: ${response.status}`;
+      setError(message);
       throw new Error(message);
     } 
     setFilteredNews(await response.json());
@@ -97,15 +132,17 @@ export default function NewsTab({ navigation }: RootTabScreenProps<'NewsTab'>) {
           paddingVertical: 8,
           borderRadius: 8,
           borderWidth: 0.3,
-          marginHorizontal: 8,
-          marginVertical: 12
+          marginHorizontal: 4,
+          marginVertical: 12,
         }]}
         onPress={() => { 
           setSearchText(suggestion.item.suggestion);
           searchNews();
          }}
       >
-        <MonoText>{suggestion.item.suggestion}</MonoText>
+        <MonoText style={{
+
+        }}>{suggestion.item.suggestion}</MonoText>
       </Pressable>
     )
   }
@@ -116,6 +153,7 @@ export default function NewsTab({ navigation }: RootTabScreenProps<'NewsTab'>) {
         <TextInput 
           onChangeText={(newText: string) => setSearchText(newText)}
           placeholder='Tente "Vagas de Professor"'
+          value={searchText}
           style={{
             width: '90%',
             backgroundColor: '#FCFCFC',
@@ -155,10 +193,10 @@ export default function NewsTab({ navigation }: RootTabScreenProps<'NewsTab'>) {
       
       {/* Notícas */}
       {
-        filteredNews ? (
+        filteredNews && filteredNews.length > 0 ? (
           <FlatList 
             data={filteredNews}
-            keyExtractor={ (item:news) => item.link.toString() }
+            keyExtractor={ (item, index) => index.toString() }
             renderItem={newsConstructor}
             style={styles.List}
             ItemSeparatorComponent={listSeparador}
@@ -167,11 +205,11 @@ export default function NewsTab({ navigation }: RootTabScreenProps<'NewsTab'>) {
         ) : !error ? (
           <>
             <ActivityIndicator style={{ marginTop: 16 }} size="large" color="#294AA3" />
-            <MonoText>Carregando as notícias</MonoText>
+            <MonoText style={{ marginTop: 16, textAlign: 'center' }}>Carregando as notícias</MonoText>
           </>
         ) : (<>
           <MonoText style={{ marginTop: 16, textAlign: 'center', fontSize: 30 }}>Erro ao procurar notícias</MonoText>
-          <TouchableOpacity onPress={() => getNewsInfo()}>
+          <TouchableOpacity onPress={() => searchNews()}>
             <MonoText style={{ marginTop: 16, textAlign: 'center', color:'#294AA3', fontSize: 30 }}>Tentar novamente</MonoText>
           </TouchableOpacity>
         </>)
@@ -193,6 +231,7 @@ const styles = StyleSheet.create({
   },
   newsDate:{
     fontSize: 8,
+    width: '90%'
   },
   title: {
     fontSize: 20,
@@ -216,7 +255,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     padding: 10,
-    paddingHorizontal: 16
   },
   separator: {
     marginVertical: 20,

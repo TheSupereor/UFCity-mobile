@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "UFCity",
+    "slug": "UFCity",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo/sets/1024.png",
@@ -25,7 +25,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo/sets/1024.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.thesups.UFCity"
     },
     "web": {
       "favicon": "./assets/images/logo/sets/48.png"

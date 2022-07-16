@@ -9,22 +9,22 @@ export interface RUItem{
 }
 
 export interface news{
-  text: String,
-  link: String,
+  text: string,
+  link: string,
   date: string
 }
 
 export interface highLightNews{
-  text: String,
-  link: String,
+  text: string,
+  link: string,
   date: string,
-  image: string
+  thumbnailUrl: string
 }
 
 export interface event{
   image: string,
-  text: String,
-  link: String,
+  text: string,
+  link: string,
   date: string,
   price: string
 }
@@ -33,4 +33,18 @@ export interface MenuItem{
   icon: string,
   name: string,
   path: string
+}
+
+export interface highLightNewsResponse {
+  highlight: highLightNews[],
+  latestNews: highLightNewsResponseLatestNews[]
+}
+
+export interface highLightNewsResponseLatestNews{
+  img: string,
+  title:{
+    url: string,
+    description: string
+  },
+  description: string
 }

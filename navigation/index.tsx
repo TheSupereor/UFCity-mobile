@@ -13,12 +13,14 @@ import { ColorSchemeName, Pressable } from 'react-native';
 import Colors from '../constants/Theme';
 import useColorScheme from '../hooks/useColorScheme';
 
-import ModalScreen from '../screens/ModalScreen';
+import ModalScreen from '../screens/RUCardModal';
 import NotFoundScreen from '../screens/NotFoundScreen';
 import RuTab from '../screens/RuTab';
 import NewsTab from '../screens/NewsTab';
 import EventTab from '../screens/EventTab';
 import Menu from '../screens/Menu';
+import InsertCreditsModal from '../screens/InsertCreditsModal';
+
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
 
@@ -44,7 +46,8 @@ function RootNavigator() {
       <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
+        <Stack.Screen name="Modal" component={ModalScreen} options={{ title: 'Cartão RU' }} />
+        <Stack.Screen name="InsertCredits" component={InsertCreditsModal} options={{ title: 'Inserir Créditos' }} />
       </Stack.Group>
     </Stack.Navigator>
   );

@@ -38,6 +38,7 @@ const linking: LinkingOptions<RootStackParamList> = {
         },
       },
       Modal: 'modal',
+      InsertCredits: 'InsertCreditsModal',
       NotFound: '*',
     },
   },

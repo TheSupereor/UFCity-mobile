@@ -1,8 +1,8 @@
 import React from 'react';
-import { Image, ImageSourcePropType, StyleProp, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, ImageSourcePropType, StyleProp, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { MonoText } from '../StyledText';
-import { View } from '../Themed';
+//import { View } from '../Themed';
 
 interface HeaderProps {
   navigation: any,
@@ -14,25 +14,24 @@ interface HeaderProps {
 export const HeaderItem: React.FC<HeaderProps> = ({navigation, image, title, path}) => {
   
   return (
+    <>
     <View style={styles.Header}>
-      <View style={styles.HeaderPart}>
+      <TouchableOpacity onPress={() => navigation.navigate(path)} style={styles.HeaderPart}>
         <Image
           style={styles.Icon}
           source={image as ImageSourcePropType}
           />
-        <MonoText style={{
-          paddingLeft: 10,
-          fontSize: 28,
-          fontWeight: 'bold'
-        }}>{title}</MonoText>
-      </View>
-      <TouchableOpacity style={{
+        <MonoText style={{ paddingLeft: 10, fontSize: 28, fontWeight: 'bold'}}>{title}</MonoText>
+        <View style={{
         width: 50,
         marginLeft: 'auto'
-      }} onPress={() => navigation.navigate(path)}>
+        }}>
         <MonoText style={styles.goTo}>Ir para</MonoText>
+        </View>
       </TouchableOpacity>
     </View>
+    <View style={styles.separator}></View>
+    </>
   );
 }
 
@@ -47,7 +46,9 @@ const styles = StyleSheet.create({
   HeaderPart: {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%'
   },
   Icon: {
     width: 30,
@@ -58,5 +59,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#3d3dff',
     textAlign: 'center',
+  },
+  separator: {
+    height: 1,
+    width: '90%',
+    backgroundColor: '#474646',
+    marginTop: 10
   },
 });

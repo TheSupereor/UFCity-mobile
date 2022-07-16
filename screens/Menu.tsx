@@ -1,15 +1,11 @@
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Image, FlatList, ListRenderItem, ImageSourcePropType } from 'react-native';
-import { MenuItem } from '../Interfaces/interfaces';
-
-import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
 
 //statusbar
 import { useIsFocused } from '@react-navigation/native';
 import { StatusBar } from 'react-native';
 
-import { Menu as MenuItems } from '../components/MenuItems/Menu';
 import MiniRU from '../components/MenuItems/MiniRU';
 import MiniNews from '../components/MenuItems/MiniNews';
 import MiniEvents from '../components/MenuItems/MiniEvents';

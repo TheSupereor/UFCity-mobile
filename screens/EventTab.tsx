@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import * as WebBrowser from 'expo-web-browser';
-import { Pressable, ScrollView, StyleSheet, TouchableOpacity, FlatList, ListRenderItem, Image, ImageSourcePropType } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, TouchableOpacity, FlatList, ListRenderItem, Image, ImageSourcePropType, Dimensions, View, Text } from 'react-native';
 import { RUDay, RUItem, event } from '../Interfaces/interfaces';
 
 import EditScreenInfo from '../components/EditScreenInfo';
-import { Text, View } from '../components/Themed';
+//import { Text } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
 import { TextInput } from '../components/InputText';
 import FontAwesome from '@expo/vector-icons/build/FontAwesome';
+import { MonoText } from '../components/StyledText';
+import DropDowns from '../components/Events/DropDowns';
+import Events from '../mock/Events';
+import CustomImage from '../components/CustomImage';
 
 const URL_TO_FETCH = `https://sigaawebscrapper.herokuapp.com/news`;
+const { width } = Dimensions.get("window");
 
 export default function EventTab({ navigation }: RootTabScreenProps<'EventTab'>) {
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState<event[]>([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [searchText, setSearchText] = useState('');
 
@@ -24,11 +29,13 @@ export default function EventTab({ navigation }: RootTabScreenProps<'EventTab'>)
   const getEventsInfo = async () => {
     const response = await fetch(URL_TO_FETCH);
     // tratando erro
-    if (!response.ok) {
+    if (response.ok) {
       const message = `An error has occured: ${response.status}`;
+      setEvents(Events);
       throw new Error(message);
     } 
-    setEvents(await response.json());
+    const JSON = await response.json();
+    setEvents(JSON);
   }
  
   // browser
@@ -40,7 +47,11 @@ export default function EventTab({ navigation }: RootTabScreenProps<'EventTab'>)
   const eventConstructor:ListRenderItem<event> = event => {
     return(
       <Pressable style={styles.ItemContainer} onPress={() => openLocalBrowser(event.item.link as string)}>
-        <Image style={styles.Image} source={event.item.image as ImageSourcePropType}/>
+        <CustomImage 
+          URL={ event.item.image }
+          width={ width - 40 }
+          height={ 300 }
+        />
         <Text style={styles.subtitle}>{event.item.text}</Text>
         <View style={{flexDirection: 'row'}}>
           <Text style={[styles.text, {paddingRight: 4}]}>Data</Text>
@@ -63,7 +74,18 @@ export default function EventTab({ navigation }: RootTabScreenProps<'EventTab'>)
 
   return (
     <View style={styles.container}>
-      <View style={{ display: 'flex', flexDirection: 'row', alignContent: 'space-between', width: '100%', alignItems: 'center' }}>
+      <View style={{ width: '100%', alignItems: 'center', paddingBottom: 10 }}>
+        <Pressable style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }} onPress={() => openLocalBrowser('https://www.google.com.br')}>
+          <FontAwesome
+            name="plus-circle"
+            size={15}
+            color='#294AA3'
+            style={{ marginRight: 10 }}
+          />
+          <MonoText style={{fontWeight: 'bold', color:'#294AA3' }}>Quer divulgar um evento?</MonoText>
+        </Pressable>
+      </View>
+      <View style={{ display: 'flex', flexDirection: 'row', alignContent: 'space-between', width: '100%', alignItems: 'center', padding: 16 }}>
         <TextInput 
           onChangeText={(newText: string) => setSearchText(newText)}
           placeholder='Tente "Vagas de Professor"'
@@ -89,6 +111,8 @@ export default function EventTab({ navigation }: RootTabScreenProps<'EventTab'>)
         </Pressable>
       </View>
 
+      <DropDowns />
+
       <FlatList 
         data={events}
         keyExtractor={ (item:event, index: number) => index.toString() }
@@ -105,7 +129,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 20
+    paddingTop: 10
   },
   title: {
     fontSize: 20,
@@ -116,8 +140,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   Image:{
-    width: 80,
-    height: 80,
+    width: '100%',
+    height: 300,
+    resizeMode: 'stretch'
   },
   text: {
     fontSize: 12,
@@ -135,8 +160,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 6,
     marginTop: 2,
-    marginBottom: 2,
-    backgroundColor: '#BBBBBB',
+    marginBottom: 10,
     borderRadius: 8
   },
   List: {
@@ -157,6 +181,5 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     height: 1,
     width: '100%',
-    backgroundColor: '#474646',
   },
 });
