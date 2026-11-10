@@ -6,7 +6,7 @@ Course project (2022) and my B.Sc. thesis in Digital Systems and Media (2024). T
 
 <p align="center">
   <img src="docs/screens.png" alt="Home, news, restaurant menu and events screens">
-  <br><sub>High-fidelity prototype by Erick Gomes, which the app implements.</sub>
+  <br><sub>High-fidelity prototype by [Erick Gomes](https://www.linkedin.com/in/erick-gomes-monteiro-7b6491181/), which the app implements.</sub>
 </p>
 
 ## The problem
@@ -35,7 +35,7 @@ the app: the top-up screen is a placeholder.
 | -------------------------------------------------------------------------------------- | ------------------------------------------ |
 | Mobile app (this repository): React Native, Expo, TypeScript                           | Narciso Ferreira                           |
 | API and scrapers for the UFC portals: [UFC-API](https://github.com/Spinnafre/UFC-API) | [Davi Silva](https://github.com/Spinnafre) |
-| UI/UX design, Figma prototype, usability tests                                         | Erick Gomes                                |
+| UI/UX design, Figma prototype, usability tests                                         | [Erick Gomes](https://www.linkedin.com/in/erick-gomes-monteiro-7b6491181/)                               |
 
 The research (survey, interviews, benchmarking) was done by a five-person team in the
 Integrated Project II course, and we also entered the project in UFC's 2022 hackathon.
