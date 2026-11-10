@@ -76,7 +76,7 @@ stores, and the API's Heroku apps are no longer online, so the app doesn't load 
 ## Looking back
 
 - Events: the response check is inverted (`if (response.ok)`), so live events never
-  replaced the mock data.
+  replaced the mock data because of Brazilian Elections (making online portals go offline).
 - The RU screen mutates the selected `Date` in place, so React doesn't see the change;
   the `setTimeout` was hiding that.
 - A suggestion chip searches with the previous text (stale state in a closure).
